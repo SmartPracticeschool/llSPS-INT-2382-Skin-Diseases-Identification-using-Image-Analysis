@@ -1,0 +1,24 @@
+import numpy as np
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.layers import Convolution2D
+from keras.layers import MaxPooling2D
+from keras.layers import Flatten
+model=Sequential()
+model.add(Convolution2D(32,(3,3),input_shape=(64,64,3),activation="relu"))
+model.add(MaxPooling2D(pool_size=(2,2)))
+model.add(Flatten())
+model.add(Dense(units=128,init='uniform',activation='relu'))
+model.add(Dense(output_dim=9,activation='softmax', init='uniform'))
+from keras.preprocessing.image import ImageDataGenerator
+train_datagen=ImageDataGenerator(rescale=1/.255,shear_range=0.2,zoom_range=0.2,horizontal_flip=True)
+test_datagen=ImageDataGenerator(rescale=1)
+x_train=train_datagen.flow_from_directory(r'D:\Pictures\AI PROJECT SKIN DISEASE DETECTION\Skin cancer ISIC The International Skin Imaging Collaboration/Train',target_size=(64,64),batch_size=32,class_mode='categorical')
+x_test=test_datagen.flow_from_directory(r'D:\Pictures\AI PROJECT SKIN DISEASE DETECTION\Skin cancer ISIC The International Skin Imaging Collaboration/Test',target_size=(64,64),batch_size=32,class_mode='categorical')
+print(x_train.class_indices)
+model.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
+model.fit_generator(x_train,steps_per_epoch=70,epochs=1000,validation_data=x_test,validation_steps=4)
+model.save('cnnai.h5')
+from keras.models import load_model
+from keras.preprocessing import image
+model=load_model("cnnai.h5")
